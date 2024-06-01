@@ -16,106 +16,36 @@ class Collection {
     static T m_largestItem;
 
 protected:
-    T& operator[](unsigned index) {
-        return m_items[index];
-    }
+    T& operator[](unsigned index);
 
-    void incrSize() {
-        if (m_size < C) {
-            ++m_size;
-        }
-    }
+    void incrSize();
 
-    void setSmallestItem(const T& item) {
-        if (item < m_smallestItem || m_size == 0) {
-            m_smallestItem = item;
-        }
-    }
+    void setSmallestItem(const T& item);
 
-    void setLargestItem(const T& item) {
-        if (item > m_largestItem || m_size == 0) {
-            m_largestItem = item;
-        }
-    }
+    void setLargestItem(const T& item);
 
 public:
-    Collection() {}
+    Collection();
 
-    unsigned size() const {
-        return m_size;
-    }
+    unsigned size() const;
 
-    unsigned capacity() const {
-        return C;
-    }
+    unsigned capacity() const;
 
-    static T getSmallestItem() {
-        return m_smallestItem;
-    }
+    static T getSmallestItem();
 
-    static T getLargestItem() {
-        return m_largestItem;
-    }
+    static T getLargestItem();
 
-    bool operator+=(const T& item) {
-        if (m_size < C) {
-            m_items[m_size] = item;
-            setSmallestItem(item);
-            setLargestItem(item);
-            incrSize();
-            return true;
-        }
-        return false;
-    }
+    bool operator+=(const T& item);
 
     void print(std::ostream& os) const;
 };
 
-// Static member definitions for Book specialization
+// Static member declarations
 template <typename T, unsigned int C>
-T Collection<T, C>::m_smallestItem = T();
+T Collection<T, C>::m_smallestItem;
 
 template <typename T, unsigned int C>
-T Collection<T, C>::m_largestItem = T();
-
-// Generic print implementation
-template <typename T, unsigned int C>
-void Collection<T, C>::print(std::ostream& os) const {
-    std::cout << std::endl;
-    std::cout << "[";
-    for (unsigned i = 0; i < m_size; ++i) {
-        os << m_items[i];
-        if (i < m_size - 1)
-            std::cout << ",";
-    }
-    std::cout << "]";
-    std::cout << std::endl;
-}
-
-// Specialized print implementation for Book
-template <>
-void Collection<seneca::Book, 10>::print(std::ostream& os) const {
-    os << "| ----------------------------------------------------------------------------------|\n";
-    for (unsigned i = 0; i < m_size; ++i) {
-        os << "| ";
-        m_items[i].print(os);
-        os << "     |\n";
-    }
-    os << "| ----------------------------------------------------------------------------------|";
-    std::cout << std::endl;
-}
-
-template <>
-void Collection<seneca::Book, 72>::print(std::ostream& os) const {
-    os << "| --------------------------------------------------------------------------------|\n";
-    for (unsigned i = 0; i < m_size; ++i) {
-        os << "| ";
-        m_items[i].print(os);
-        os << "     |\n";
-    }
-    os << "| --------------------------------------------------------------------------------|";
-    std::cout << std::endl;
-}
+T Collection<T, C>::m_largestItem;
 
 } // namespace seneca
 
