@@ -58,7 +58,7 @@ public:
     }
 
     bool operator+=(const T& item) {
-        if (m_size <= C) {
+        if (m_size < C) {
             m_items[m_size] = item;
             setSmallestItem(item);
             setLargestItem(item);
@@ -72,24 +72,50 @@ public:
 };
 
 // Static member definitions for Book specialization
-template <>
-Book Collection<Book, 10>::m_smallestItem;
-
-template <>
-Book Collection<Book, 10>::m_largestItem;
-
-// Static member definitions for other types and capacities if needed
 template <typename T, unsigned int C>
-T Collection<T, C>::m_smallestItem;
+T Collection<T, C>::m_smallestItem = T();
 
 template <typename T, unsigned int C>
-T Collection<T, C>::m_largestItem;
+T Collection<T, C>::m_largestItem = T();
+
+// Generic print implementation
+template <typename T, unsigned int C>
+void Collection<T, C>::print(std::ostream& os) const {
+    std::cout << std::endl;
+    std::cout << "[";
+    for (unsigned i = 0; i < m_size; ++i) {
+        os << m_items[i];
+        if (i < m_size - 1)
+            std::cout << ",";
+    }
+    std::cout << "]";
+    std::cout << std::endl;
+}
+
+// Specialized print implementation for Book
+template <>
+void Collection<seneca::Book, 10>::print(std::ostream& os) const {
+    os << "| ----------------------------------------------------------------------------------|\n";
+    for (unsigned i = 0; i < m_size; ++i) {
+        os << "| ";
+        m_items[i].print(os);
+        os << "     |\n";
+    }
+    os << "| ----------------------------------------------------------------------------------|";
+    std::cout << std::endl;
+}
 
 template <>
-void Collection<Book, 10>::print(std::ostream& os) const;
-
-template <>
-void Collection<Book, 72>::print(std::ostream& os) const;
+void Collection<seneca::Book, 72>::print(std::ostream& os) const {
+    os << "| --------------------------------------------------------------------------------|\n";
+    for (unsigned i = 0; i < m_size; ++i) {
+        os << "| ";
+        m_items[i].print(os);
+        os << "     |\n";
+    }
+    os << "| --------------------------------------------------------------------------------|";
+    std::cout << std::endl;
+}
 
 } // namespace seneca
 
