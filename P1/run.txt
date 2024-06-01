@@ -1,0 +1,2 @@
+Run the command g++ -o ws w3_p1.cpp Book.cpp -std=c++11 to compile the file.
+Run the command ./ws to run the compiled program.
