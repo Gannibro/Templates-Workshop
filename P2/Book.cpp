@@ -21,7 +21,7 @@ std::ostream& Book::print(std::ostream& os) const {
     if (m_title.empty() && m_chapters == 0 && m_pages == 0) {
         return os << "| Invalid book data";
     } else {
-        return os << std::setw(50) << std::right << m_title << "," << m_chapters << "," << m_pages
+        return os << std::setw(49) << std::right << m_title << "," << m_chapters << "," << m_pages
            << " | (" << std::fixed << std::setprecision(6) << pagesToChaptersRatio() << ")    ";
     }
 }
