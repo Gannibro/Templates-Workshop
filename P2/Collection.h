@@ -7,120 +7,89 @@
 
 namespace seneca {
 
-template <typename T, unsigned int C>
+template <typename T, size_t Capacity>
 class Collection {
-    T m_items[C];
-    unsigned m_size = 0;
+    T items[Capacity];
+    size_t count{0};
 
-    static T m_smallestItem;
-    static T m_largestItem;
+    T smallestItem{};
+    T largestItem{};
 
 protected:
-    T& operator[](unsigned index) {
-        return m_items[index];
-    }
-
-    void incrSize() {
-        if (m_size < C) {
-            ++m_size;
-        }
-    }
-
-    void setSmallestItem(const T& item) {
-        if (item < m_smallestItem || m_size == 0) {
-            m_smallestItem = item;
-        }
-    }
-
-    void setLargestItem(const T& item) {
-        if (item > m_largestItem || m_size == 0) {
-            m_largestItem = item;
-        }
-    }
+    T& operator[](size_t index) { return items[index]; }
+    const T& operator[](size_t index) const { return items[index]; }
 
 public:
-    Collection() {}
+    Collection() = default;
 
-    unsigned size() const {
-        return m_size;
-    }
-
-    unsigned capacity() const {
-        return C;
-    }
-
-    static T getSmallestItem() {
-        return m_smallestItem;
-    }
-
-    static T getLargestItem() {
-        return m_largestItem;
-    }
-
-    bool operator+=(const T& item) {
-        if (m_size < C) {
-            m_items[m_size] = item;
-            setSmallestItem(item);
-            setLargestItem(item);
-            incrSize();
+    bool add(const T& item) {
+        if (count < Capacity) {
+            items[count++] = item;
+            if (count == 1 || item < smallestItem) smallestItem = item;
+            if (count == 1 || item > largestItem) largestItem = item;
             return true;
         }
         return false;
     }
 
-    void print(std::ostream& os) const {
-        std::cout << std::endl;
-        std::cout << "[";
-        for (unsigned i = 0; i < m_size; ++i) {
-            os << m_items[i];
-            if (i < m_size - 1)
-                std::cout << ",";
+    size_t size() const { return count; }
+    size_t capacity() const { return Capacity; }
+    T getSmallestItem() const { return smallestItem; }
+    T getLargestItem() const { return largestItem; }
+
+    Collection& operator+=(const T& item) {
+        add(item);
+        return *this;
+    }
+
+    std::ostream& print(std::ostream& os) const {
+        os << "[";
+        for (size_t i = 0; i < count; ++i) {
+            os << items[i];
+            if (i < count - 1) os << ",";
         }
-        std::cout << "]";
-        std::cout << std::endl;
+        return os << "]" << std::endl;
     }
 };
 
-// Static member declarations
-template <typename T, unsigned int C>
-T Collection<T, C>::m_smallestItem;
+// Specialization for Book and 10
+template<>
+class Collection<Book, 10> {
+    Book items[10];
+    size_t count{0};
 
-template <typename T, unsigned int C>
-T Collection<T, C>::m_largestItem;
+public:
+    Collection() = default;
 
-// Specialized print implementation for Book
-template <>
-void Collection<seneca::Book, 10>::print(std::ostream& os) const {
-    os << "| --------------------------------------------------------------------------------------- |\n";
-    for (unsigned i = 0; i < m_size; ++i) {
-        os << "| ";
-        m_items[i].print(os);
-        os << "     |\n";
+    bool add(const Book& item) {
+        if (count < 10) {
+            items[count++] = item;
+            return true;
+        }
+        return false;
     }
-    os << "| --------------------------------------------------------------------------------------- |";
-    std::cout << std::endl;
-}
 
-template <>
-void Collection<seneca::Book, 72>::print(std::ostream& os) const {
-    os << "| ------------------------------------------------------------------------------------- |\n";
-    for (unsigned i = 0; i < m_size; ++i) {
-        os << "| ";
-        m_items[i].print(os);
-        os << "     |\n";
+    size_t size() const { return count; }
+    size_t capacity() const { return 10; }
+    Book getSmallestItem() const { return std::min_element(items, items + count, [](const Book& a, const Book& b) { return a.pagesToChaptersRatio() < b.pagesToChaptersRatio(); })->pagesToChaptersRatio() > 0 ? *std::min_element(items, items + count, [](const Book& a, const Book& b) { return a.pagesToChaptersRatio() < b.pagesToChaptersRatio(); }) : Book(); }
+    Book getLargestItem() const { return std::max_element(items, items + count, [](const Book& a, const Book& b) { return a.pagesToChaptersRatio() < b.pagesToChaptersRatio(); })->pagesToChaptersRatio() > 0 ? *std::max_element(items, items + count, [](const Book& a, const Book& b) { return a.pagesToChaptersRatio() < b.pagesToChaptersRatio(); }) : Book(); }
+
+    Collection& operator+=(const Book& item) {
+        add(item);
+        return *this;
     }
-    os << "| ------------------------------------------------------------------------------------- |";
-    std::cout << std::endl;
+
+    std::ostream& print(std::ostream& os) const {
+        os << "| ---------------------------------------------------------------------------|\n";
+        for (size_t i = 0; i < count; ++i) {
+            os << "| ";
+            items[i].print(os);
+            os << "     |\n";
+        }
+        return os << "| ---------------------------------------------------------------------------|";
+    }
+};
+
 }
-
-// Explicit instantiations of Collection template class for various types and capacities
-template class Collection<int, 10>;
-template class Collection<double, 10>;
-template class Collection<Book, 10>;
-template class Collection<int, 72>;
-template class Collection<double, 72>;
-template class Collection<Book, 72>;
-
-} // namespace seneca
 
 #endif // SENECA_COLLECTION_H

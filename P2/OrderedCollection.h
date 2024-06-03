@@ -8,7 +8,7 @@ namespace seneca {
 template <typename T>
 class OrderedCollection : public Collection<T, 72> {
 public:
-    bool operator+=(const T& item) {
+    OrderedCollection& operator+=(const T& item) {
         if (this->size() < this->capacity()) {
             int i = this->size() - 1;
             while (i >= 0 && this->operator[](i) > item) {
@@ -16,20 +16,42 @@ public:
                 --i;
             }
             this->operator[](i + 1) = item;
-            this->incrSize();
-            this->setSmallestItem(item);
-            this->setLargestItem(item);
-            return true;
+            this->add(item);
+            return *this;
         }
-        return false;
+        return *this;
     }
 };
 
-// Explicit instantiations of OrderedCollection template class for various types
-template class OrderedCollection<int>;
-template class OrderedCollection<double>;
-template class OrderedCollection<seneca::Book>;
+// Specialization for Book
+template<>
+class OrderedCollection<Book> : public Collection<Book, 72> {
+public:
+    OrderedCollection& operator+=(const Book& item) {
+        if (this->size() < this->capacity()) {
+            int i = this->size() - 1;
+            while (i >= 0 && this->operator[](i).pagesToChaptersRatio() > item.pagesToChaptersRatio()) {
+                this->operator[](i + 1) = this->operator[](i);
+                --i;
+            }
+            this->operator[](i + 1) = item;
+            this->add(item);
+            return *this;
+        }
+        return *this;
+    }
 
-} // namespace seneca
+    std::ostream& print(std::ostream& os) const {
+        os << "| ---------------------------------------------------------------------------|\n";
+        for (size_t i = 0; i < this->size(); ++i) {
+            os << "| ";
+            this->operator[](i).print(os);
+            os << "     |\n";
+        }
+        return os << "| ---------------------------------------------------------------------------|";
+    }
+};
+
+}
 
 #endif // SENECA_ORDEREDCOLLECTION_H

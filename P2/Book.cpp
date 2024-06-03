@@ -2,53 +2,33 @@
 
 namespace seneca {
 
-Book::Book() : m_title(""), m_numChapters(0), m_numPages(0) {}
+Book::Book(const std::string& title, unsigned chapters, unsigned pages)
+    : m_title(title), m_chapters(chapters), m_pages(pages) {}
 
-Book::Book(const std::string& title, unsigned nChapters, unsigned nPages)
-    : m_title(title), m_numChapters(nChapters), m_numPages(nPages) {}
-
-bool Book::isValid() const {
-    return !m_title.empty() && m_numChapters > 0 && m_numPages > 0;
-}
-
-std::string Book::getTitle() const {
-    return m_title;
-}
-
-unsigned Book::getNumChapters() const {
-    return m_numChapters;
-}
-
-unsigned Book::getNumPages() const {
-    return m_numPages;
-}
-
-double Book::getAveragePagesPerChapter() const {
-    if (m_numChapters == 0) return 0;
-    return static_cast<double>(m_numPages) / m_numChapters;
+double Book::pagesToChaptersRatio() const {
+    return m_chapters > 0 ? static_cast<double>(m_pages) / m_chapters : 0.0;
 }
 
 bool Book::operator<(const Book& other) const {
-    return getAveragePagesPerChapter() < other.getAveragePagesPerChapter();
+    return pagesToChaptersRatio() < other.pagesToChaptersRatio();
 }
 
 bool Book::operator>(const Book& other) const {
-    return getAveragePagesPerChapter() > other.getAveragePagesPerChapter();
+    return pagesToChaptersRatio() > other.pagesToChaptersRatio();
 }
 
 std::ostream& Book::print(std::ostream& os) const {
-    if (isValid()) {
-        os << std::setw(56) << std::right << m_title << ", "
-           << m_numChapters << ", " << m_numPages << " | "
-           << std::setw(15) << std::left << getAveragePagesPerChapter();
+    if (m_title.empty() && m_chapters == 0 && m_pages == 0) {
+        return os << "| Invalid book data";
     } else {
-        os << "| Invalid book data |";
+        return os << std::setw(50) << std::right << m_title << "," << m_chapters << "," << m_pages
+           << " | (" << std::fixed << std::setprecision(6) << pagesToChaptersRatio() << ")    ";
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const Book& book) {
+    book.print(os);
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Book& bk) {
-    return bk.print(os);
 }
-
-} // namespace seneca
